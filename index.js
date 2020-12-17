@@ -4,17 +4,21 @@ const app = express();
 const cors = require('cors');
 const http = require('http').Server(app);
 const port = process.env.PORT || 5000;
-const auth = require('./routes/auth');
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
 const MongoUrl = process.env.MONGO_URL;
+const auth = require('./routes/auth');
+const post = require("./routes/post");
+const index = require("./routes/index");
+
+
 app.use(cors());
 app.use(express.json());
 
 mongoose.connect(MongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex:true
+    useCreateIndex: true
 });
 mongoose.connection
     .once('open', () => {
@@ -24,10 +28,9 @@ mongoose.connection
         console.log(err);
     });
 
-app.get("/", (req, res) => {
-    res.send('d');
-});
 app.use('/auth', auth);
+app.use("/post", post);
+app.use("/", index);
 
 
 io.on('connnection', (socket) => {

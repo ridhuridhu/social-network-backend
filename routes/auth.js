@@ -3,24 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const User = require('../models/User');
+const auth=require('../libs/auth');
 
-
-router.get("/", (req, res) => {
-    res.send("Auth");
-});
-
-const auth=async(req,res,next)=>{
-    const token=req.header('auth-token');
-    if(!token){
-        res.json({
-            message:"Access Denied"
-        });
-    }
-
-    const verfiy=  jwt.verify(token,process.env.JWT_SECRET);
-    req.user=verfiy;
-    next();
-}; 
 
 
 router.post("/login", async (req, res) => {
@@ -31,7 +15,8 @@ router.post("/login", async (req, res) => {
 
     if (!email || !password) {
         res.json({
-            message: "Please provide email and password",
+            success:false,
+            data: "Please provide email and password",
         });
     }
 
@@ -43,14 +28,16 @@ router.post("/login", async (req, res) => {
 
     if (!user) {
         res.json({
-            message: "The email is not yet registered to an account"
+            success:false,
+            data: "The email is not yet registered to an account"
         });
     }
 
     const checkPassword = await bcryptjs.compare(password, user.password);
     if (!checkPassword) {
         res.json({
-            message: "The password does not match"
+            success:false,
+            data: "The password does not match"
         });
     }
     const token = jwt.sign({
@@ -60,6 +47,7 @@ router.post("/login", async (req, res) => {
     });
 
     res.header('auth-token',token).json({
+        success:true,
         isLogged: true,
         token,
         user
@@ -77,7 +65,8 @@ router.post("/signup", async (req, res) => {
     const emailExist=await User.findOne({email});
     if(emailExist){
         res.json({
-            message: "The Email already exists"
+            success:false,
+            data: "The Email already exists"
         });
     }
 
@@ -98,6 +87,7 @@ router.post("/signup", async (req, res) => {
     });
 
     res.json({
+        success:true,
         isLogged: true,
         token,
         user
@@ -105,6 +95,9 @@ router.post("/signup", async (req, res) => {
 });
 
 router.get("/me",auth ,async(req,res)=>{
-    res.json(req.user.id);
+    res.json({
+        success:true,
+        data:req.user
+    });
 });
 module.exports = router;
