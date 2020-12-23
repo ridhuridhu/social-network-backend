@@ -14,6 +14,32 @@ router.get("/", async (req, res) => {
 
 });
 
+
+
+router.get("/feed", logged, async (req, res) => {
+    let feed = [];
+
+    const posts = await Post.find();
+
+    const user = await User.findById(req.user.id);
+
+    (user.following).map(u => {
+        posts.map(p=>{
+            if(p.user===u._id){
+                feed.push(p);
+            }
+        });
+    });
+
+    res.json({
+        success:true,
+        data:feed
+    });
+
+
+
+});
+
 router.get("/:id", async (req, res) => {
     const post = await Post.findById(req.params.id);
 

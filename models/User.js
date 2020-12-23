@@ -4,7 +4,6 @@ const userSchema = new mongoose.Schema({
 
     username: {
         type: String,
-        unique: true
     },
     email: {
         type: String,
@@ -40,6 +39,9 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    directId:[{
+        type:mongoose.Schema.ObjectId
+    }],
 
 
 
